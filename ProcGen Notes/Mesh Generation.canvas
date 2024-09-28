@@ -1,0 +1,9 @@
+{
+	"nodes":[
+		{"id":"1cfd3749bf89e1f6","x":-324,"y":-170,"width":250,"height":60,"type":"text","text":"Get noise"},
+		{"id":"5d97f1fb41563723","x":-196,"y":32,"width":250,"height":60,"type":"text","text":"Determine tile distribution w"}
+	],
+	"edges":[
+		{"id":"999610b26e4760f7","fromNode":"1cfd3749bf89e1f6","fromSide":"bottom","toNode":"5d97f1fb41563723","toSide":"top"}
+	]
+}
