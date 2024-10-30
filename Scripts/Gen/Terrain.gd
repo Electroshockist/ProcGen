@@ -17,21 +17,26 @@ var threads = []
 var chunks = {}
 
 func _init():
-	print("Terrain Init")
+	
 	#TODO: do thread init
 	pass
 
 func _ready():
+	print(
+		"Loading Chunks\n
+		Total Chunks: %.0f\n" % (pow(render_distance,3)))
+	print("Total Chunk Volume Tiles: %.0f" % (pow(render_distance*chunk_size,3)))
+	
 	_load_chunks()
 
 func _load_chunks():
 	#sets the index of chunks. 0,0,0 being the first chunk
-	var loader_chunk_index :Vector3i = (loader.position / chunk_size).floor()
+	#var loader_chunk_index :Vector3i = (loader.position / chunk_size).floor()
 	
 	var render_radius = float(render_distance)/2
 	
 	#render from a center point outward
-	var render_range = range(ceili(-render_radius), ceili(render_radius))
+	var render_range := range(ceili(-render_radius), ceili(render_radius))
 	
 	#loop through and generate all possible chunks in render range
 	for x in render_range:

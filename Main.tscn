@@ -60,7 +60,7 @@ mesh = SubResource("BoxMesh_evuqo")
 script = ExtResource("2_hpwwi")
 terrain_procedure = ExtResource("3_mewwe")
 loader = NodePath("../CharacterBody3D")
-chunk_size = 1
+chunk_size = 4
 render_distance = 4
 
 [node name="TerrainProcedure" type="Node" parent="Terrain"]

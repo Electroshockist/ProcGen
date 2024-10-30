@@ -4,7 +4,13 @@ extends MeshInstance3D
 #list of all tiles in chunk
 var _tiles := {}
 
+const _arrow_gizmo:= preload("res://arrow.tscn")
+
 const mat = preload("res://chunk.tres")
+
+const x_mat = preload("res://x.tres")
+const y_mat = preload("res://y.tres")
+const z_mat = preload("res://z.tres")
 
 #determines how terrain is generated
 @onready var terrain_procedure := $"../TerrainProcedure"
@@ -20,7 +26,7 @@ enum DIRECTION {
 }
 
 #list of all vertices in a unit cube
-var _mesh_vertices := PackedVector3Array(
+static var _mesh_vertices := PackedVector3Array(
 	[
 		#west bottom south
 		Vector3 (0, 0, 0),
@@ -42,7 +48,7 @@ var _mesh_vertices := PackedVector3Array(
 )
 
 #enum of all vertex indices for each face in a cube 
-var _mesh_indices := {
+static var _mesh_indices := {
 	DIRECTION.NORTH: [ 
 		0, 2, 1, #face north
 		0, 3, 2
@@ -70,7 +76,7 @@ var _mesh_indices := {
 }
 
 #enum of vector3s for normal directions
-var _relative_tile_dirs = {
+static var _relative_tile_dirs = {
 	DIRECTION.NORTH: Vector3i(0,1,0),
 	DIRECTION.SOUTH: Vector3i(0,-1,0),
 	DIRECTION.EAST: Vector3i(-1,0,0),
@@ -93,7 +99,7 @@ func get_tile_absolute_coords(pos: Vector3i):
 
 func get_tile_relative_coords(pos: Vector3i):
 	return _tiles[pos] if _tiles.has(pos) else  null
-	
+
 #get tile pos relative to chunk pos
 func get_relative_pos(tile_pos: Vector3i):
 	return tile_pos - (get_chunk_index() * get_parent().chunk_size)
@@ -133,7 +139,6 @@ func get_tiles():
 
 #generate chunk mesh
 func _gen_mesh():
-	
 	if(_tiles.size() > 0):
 		var surface_array = []
 		surface_array.resize(Mesh.ARRAY_MAX)
@@ -154,6 +159,7 @@ func _gen_mesh():
 
 func _iterate_meshes() ->PackedVector3Array:
 	var verts := PackedVector3Array()
+	var faces = []
 	
 	#TODO
 	var checked_dirs = {}
@@ -166,61 +172,63 @@ func _iterate_meshes() ->PackedVector3Array:
 			for index in _mesh_indices[dir]:
 				if not _tiles.has(Vector3i(_tiles[pos].position) + _relative_tile_dirs[dir]):
 					verts.append(_tiles[pos].position+_mesh_vertices[index])
+				
 	#		faces[d] = (get_parent() as Chunk).get_tile_relative_coords(Vector3i(position) + _relative_tile_dirs[d]) != null
-#	print("%.v" % position)
-#	#for each direction
-#	for dir in range(0,DIRECTION.size()):
-#		#if tile is on a chunk boundary, draw face anyway
-#		#TODO: check adjacent chunks
-#		var rel :=_relative_tile_dirs[dir] as Vector3i
-#		var next_tile := Vector3i(position) + rel
-##		_is_dir_OOB(next_tile, dir) or 
-#		if(not get_parent()._tiles.has(next_tile)):
-#			print("\t%s" % dir)
-#			print(_mesh_indices[dir])
-#
-#			#append mesh indices
-#			for m in _mesh_indices[dir]:
-#				for ind in m:
-#					var s :=_mesh_vertices[ind] + position
-#		#				print("\t\toriginal: %.v\n\t\toffset:\t %.v" % [_mesh_vertices[m], s])
-#					faces.append(s)
-#
-#					var _gizmo = _arrow_gizmo.instantiate(PackedScene.GEN_EDIT_STATE_MAIN)
-#					_gizmo.name = "arrow %.v" % s
-#					_gizmo.position = s
-#
-#					match dir:
-#						DIRECTION.NORTH:
-#							_gizmo.rotate_x(deg_to_rad(90))
-#							_gizmo.get_child(0, true).set_surface_override_material(0, z_mat)
-#							_gizmo.get_child(1, true).set_surface_override_material(0, z_mat)
-#
-#						DIRECTION.SOUTH:
-#							_gizmo.rotate_x(deg_to_rad(-90))
-#							_gizmo.get_child(0, true).set_surface_override_material(0, z_mat)
-#							_gizmo.get_child(1, true).set_surface_override_material(0, z_mat)
-#
-#						DIRECTION.EAST:
-#							_gizmo.rotate_z(deg_to_rad(90))
-#							_gizmo.get_child(0, true).set_surface_override_material(0, x_mat)
-#							_gizmo.get_child(1, true).set_surface_override_material(0, x_mat)
-#
-#						DIRECTION.WEST:
-#							_gizmo.rotate_z(deg_to_rad(-90))
-#							_gizmo.get_child(0, true).set_surface_override_material(0, x_mat)
-#							_gizmo.get_child(1, true).set_surface_override_material(0, x_mat)
-#
-#						DIRECTION.UP:
-#							_gizmo.get_child(0, true).set_surface_override_material(0, y_mat)
-#							_gizmo.get_child(1, true).set_surface_override_material(0, y_mat)
-#
-#						DIRECTION.DOWN:
-#							_gizmo.rotate_z(PI)
-#							_gizmo.get_child(0, true).set_surface_override_material(0, y_mat)
-#							_gizmo.get_child(1, true).set_surface_override_material(0, y_mat)
-#
-#					add_child(_gizmo)
+	print("%.v" % position)
+	
+	#for each direction
+	for dir in range(0,DIRECTION.size()):
+		#if tile is on a chunk boundary, draw face anyway
+		#TODO: check adjacent chunks
+		var rel :=_relative_tile_dirs[dir] as Vector3i
+		var next_tile := Vector3i(position) + rel
+#		_is_dir_OOB(next_tile, dir) or 
+		if(not get_parent()._tiles.has(next_tile)):
+			print("\t%s" % dir)
+			print(_mesh_indices[dir])
+
+			#append mesh indices
+			for m in _mesh_indices[dir]:
+				for ind in m:
+					var s :=_mesh_vertices[ind] + position
+					print("\t\toriginal: %.v\n\t\toffset:\t %.v" % [_mesh_vertices[m], s])
+					faces.append(s)
+
+					var _gizmo = _arrow_gizmo.instantiate(PackedScene.GEN_EDIT_STATE_MAIN)
+					_gizmo.name = "arrow %.v" % s
+					_gizmo.position = s
+
+					match dir:
+						DIRECTION.NORTH:
+							_gizmo.rotate_x(deg_to_rad(90))
+							_gizmo.get_child(0, true).set_surface_override_material(0, z_mat)
+							_gizmo.get_child(1, true).set_surface_override_material(0, z_mat)
+
+						DIRECTION.SOUTH:
+							_gizmo.rotate_x(deg_to_rad(-90))
+							_gizmo.get_child(0, true).set_surface_override_material(0, z_mat)
+							_gizmo.get_child(1, true).set_surface_override_material(0, z_mat)
+
+						DIRECTION.EAST:
+							_gizmo.rotate_z(deg_to_rad(90))
+							_gizmo.get_child(0, true).set_surface_override_material(0, x_mat)
+							_gizmo.get_child(1, true).set_surface_override_material(0, x_mat)
+
+						DIRECTION.WEST:
+							_gizmo.rotate_z(deg_to_rad(-90))
+							_gizmo.get_child(0, true).set_surface_override_material(0, x_mat)
+							_gizmo.get_child(1, true).set_surface_override_material(0, x_mat)
+
+						DIRECTION.UP:
+							_gizmo.get_child(0, true).set_surface_override_material(0, y_mat)
+							_gizmo.get_child(1, true).set_surface_override_material(0, y_mat)
+
+						DIRECTION.DOWN:
+							_gizmo.rotate_z(PI)
+							_gizmo.get_child(0, true).set_surface_override_material(0, y_mat)
+							_gizmo.get_child(1, true).set_surface_override_material(0, y_mat)
+
+					add_child(_gizmo)
 				
 	return verts
 	
