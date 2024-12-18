@@ -7,14 +7,18 @@ This project is made using the Godot game engine.
 # What can it do?
 Right now, it generates a small area using simplex noise.
 The area is composed of multiple chunks. Each chunk is composed of a grid of tiles.
-The dimensions of the chunk grid and the chunk's tile grid can be determined in the editor.
-The
+The dimensions of the chunk grid and the chunk's tile grid can be determined in the editor.<br>
 A custom mesh is generated for every chunk to improve performance.
 
 There are a couple of temporary objects in the scene for reference that will be removed when the project is complete.
 # What are the plans for this project?
 The plan is to implement a couple more features and maybe turn it into a small engine for a game.
 ## Planned features:
-- Greedy meshing
 - Mesh collisions
-- Occlusion Culling
+- Occlusion culling
+  - Dynamic chunk loading
+- Camera-relative chunk loading
+- Terrain manipulation
+  - Saving and loading
+- Decoupling mesh and chunk generation
+  - Greedy meshing
